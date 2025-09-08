@@ -6,6 +6,7 @@ class RegistryGenerator {
     this.srcDir = path.join(__dirname, '../src')
     this.registryDir = path.join(__dirname, '../registry')
     this.componentsDir = path.join(this.registryDir, 'components')
+    this.generatedComponents = []
   }
 
   generateComponentRegistry(componentPath, componentName, type = 'components:ui') {
@@ -13,7 +14,7 @@ class RegistryGenerator {
     
     if (!fs.existsSync(fullPath)) {
       console.error(`Component file not found: ${fullPath}`)
-      return
+      return false
     }
 
     const content = fs.readFileSync(fullPath, 'utf8')
@@ -25,6 +26,7 @@ class RegistryGenerator {
       name: componentName,
       type: type,
       description: `${componentName.charAt(0).toUpperCase() + componentName.slice(1)} component`,
+      version: "0.1.0",
       dependencies: dependencies.external,
       devDependencies: [],
       registryDependencies: dependencies.internal,
@@ -41,6 +43,10 @@ class RegistryGenerator {
             extend: {}
           }
         }
+      },
+      meta: {
+        source: componentPath,
+        generatedAt: new Date().toISOString()
       }
     }
 
@@ -48,7 +54,16 @@ class RegistryGenerator {
     const registryFile = path.join(this.componentsDir, `${componentName}.json`)
     fs.writeFileSync(registryFile, JSON.stringify(registryEntry, null, 2))
     
+    // Add to generated components list
+    this.generatedComponents.push({
+      name: componentName,
+      type: type,
+      description: registryEntry.description,
+      version: registryEntry.version
+    })
+    
     console.log(`✅ Generated registry for ${componentName}`)
+    return true
   }
 
   extractDependencies(content) {
@@ -65,19 +80,40 @@ class RegistryGenerator {
       if (importPath.startsWith('@/')) {
         // Internal dependency (other components from our library)
         const componentName = path.basename(importPath)
-        if (componentName !== 'utils') {
+        if (componentName !== 'utils' && componentName !== 'types') {
           internalDeps.add(componentName)
         }
       } else if (!importPath.startsWith('.') && !importPath.startsWith('/')) {
         // External NPM dependency
-        externalDeps.add(importPath.split('/')[0])
+        const packageName = importPath.startsWith('@') 
+          ? importPath.split('/').slice(0, 2).join('/')
+          : importPath.split('/')[0]
+        externalDeps.add(packageName)
       }
     }
 
     return {
-      external: Array.from(externalDeps),
+      external: Array.from(externalDeps).filter(dep => 
+        !['react', 'react-dom'].includes(dep) // Exclude peer dependencies
+      ),
       internal: Array.from(internalDeps)
     }
+  }
+
+  generateIndex() {
+    const indexData = {
+      name: "@effectual/ui",
+      version: "0.1.0",
+      description: "Effectual component library registry",
+      components: this.generatedComponents,
+      generatedAt: new Date().toISOString(),
+      registryUrl: "https://jack-effectual.github.io/effectual-ui"
+    }
+
+    const indexFile = path.join(this.registryDir, 'index.json')
+    fs.writeFileSync(indexFile, JSON.stringify(indexData, null, 2))
+    
+    console.log(`✅ Generated registry index with ${this.generatedComponents.length} components`)
   }
 
   generateAllComponents() {
@@ -86,27 +122,31 @@ class RegistryGenerator {
       fs.mkdirSync(this.componentsDir, { recursive: true })
     }
 
-    // Generate registry for button component
-    this.generateComponentRegistry('components/ui/button.tsx', 'button')
+    console.log('🔄 Generating component registry...')
+
+    // Generate registry for existing components
+    const componentConfigs = [
+      { path: 'components/ui/button.tsx', name: 'button', type: 'components:ui' }
+    ]
+
+    let successCount = 0
+    componentConfigs.forEach(config => {
+      if (this.generateComponentRegistry(config.path, config.name, config.type)) {
+        successCount++
+      }
+    })
+
+    // Generate index file - THIS IS IMPORTANT!
+    this.generateIndex()
     
-    console.log('🎉 Registry generation complete!')
+    console.log(`🎉 Registry generation complete! Generated ${successCount}/${componentConfigs.length} components`)
   }
-
-  generateIndex() {
-  const indexData = {
-    name: "@effectual/ui",
-    version: "0.1.0", 
-    description: "Effectual component library registry",
-    components: this.generatedComponents,
-    generatedAt: new Date().toISOString(),
-    registryUrl: "https://jack-effectual.github.io/effectual-ui/registry"
-  }
-
-  const indexFile = path.join(this.registryDir, 'index.json')
-  fs.writeFileSync(indexFile, JSON.stringify(indexData, null, 2))
-}
 }
 
 // Run the generator
-const generator = new RegistryGenerator()
-generator.generateAllComponents()
+if (require.main === module) {
+  const generator = new RegistryGenerator()
+  generator.generateAllComponents()
+} else {
+  module.exports = RegistryGenerator
+}
