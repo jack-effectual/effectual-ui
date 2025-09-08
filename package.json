@@ -13,7 +13,7 @@
     "dev": "tsup --watch",
     "clean": "rimraf dist",
     "type-check": "tsc --noEmit",
-    "lint": "eslint src --ext .ts,.tsx",
+    "lint": "eslint src --ext .ts,.tsx --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
     "test": "echo \"Tests coming soon\"",
     "generate-registry": "node scripts/generate-registry.js"
