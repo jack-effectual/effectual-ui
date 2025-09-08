@@ -91,6 +91,20 @@ class RegistryGenerator {
     
     console.log('🎉 Registry generation complete!')
   }
+
+  generateIndex() {
+  const indexData = {
+    name: "@effectual/ui",
+    version: "0.1.0", 
+    description: "Effectual component library registry",
+    components: this.generatedComponents,
+    generatedAt: new Date().toISOString(),
+    registryUrl: "https://jack-effectual.github.io/effectual-ui/registry"
+  }
+
+  const indexFile = path.join(this.registryDir, 'index.json')
+  fs.writeFileSync(indexFile, JSON.stringify(indexData, null, 2))
+}
 }
 
 // Run the generator
