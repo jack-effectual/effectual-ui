@@ -9,14 +9,18 @@
     "effectual-ui": "./bin/cli.js"
   },
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
+    "build": "npm run generate-exports && tsup",
+    "dev": "tsup --watch", 
     "clean": "rimraf dist",
     "type-check": "tsc --noEmit",
     "lint": "eslint src --ext .ts,.tsx --fix",
+    "lint:check": "eslint src --ext .ts,.tsx",
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\"",
     "test": "echo \"Tests coming soon\"",
-    "generate-registry": "node scripts/generate-registry.js"
+    "generate-registry": "node scripts/generate-registry.js",
+    "generate-exports": "node scripts/generate-exports.js",
+    "prebuild": "npm run generate-exports"
   },
   "files": [
     "dist/**/*",

@@ -1,10 +1,10 @@
 {
   "name": "button",
   "type": "components:ui",
-  "description": "Button component",
+  "description": "A customizable button component with multiple variants and sizes",
+  "version": "0.1.0",
   "dependencies": [
-    "react",
-    "@radix-ui",
+    "@radix-ui/react-slot",
     "class-variance-authority"
   ],
   "devDependencies": [],
@@ -22,5 +22,14 @@
         "extend": {}
       }
     }
+  },
+  "meta": {
+    "source": "components\\ui\\button.tsx",
+    "generatedAt": "2025-09-09T17:10:04.530Z",
+    "exports": [
+      "ButtonProps"
+    ],
+    "hasVariants": true,
+    "hasSizes": false
   }
 }
