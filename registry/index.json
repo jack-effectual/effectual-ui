@@ -4,21 +4,37 @@
   "description": "Effectual component library registry",
   "components": [
     {
+      "name": "alert",
+      "type": "components:ui",
+      "description": "An alert component for displaying important messages",
+      "version": "0.1.0",
+      "hasVariants": false,
+      "hasSizes": false
+    },
+    {
       "name": "button",
       "type": "components:ui",
       "description": "A customizable button component with multiple variants and sizes",
       "version": "0.1.0",
       "hasVariants": true,
       "hasSizes": false
+    },
+    {
+      "name": "card",
+      "type": "components:ui",
+      "description": "A flexible card component for content organization and layout",
+      "version": "0.1.0",
+      "hasVariants": false,
+      "hasSizes": false
     }
   ],
   "stats": {
-    "totalComponents": 1,
-    "uiComponents": 1,
+    "totalComponents": 3,
+    "uiComponents": 3,
     "customComponents": 0,
     "componentsWithVariants": 1,
     "componentsWithSizes": 0
   },
-  "generatedAt": "2025-09-09T18:48:54.864Z",
+  "generatedAt": "2025-09-09T19:25:15.799Z",
   "registryUrl": "https://jack-effectual.github.io/effectual-ui"
 }

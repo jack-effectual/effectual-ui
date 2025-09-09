@@ -1,0 +1,33 @@
+{
+  "name": "alert",
+  "type": "components:ui",
+  "description": "An alert component for displaying important messages",
+  "version": "0.1.0",
+  "dependencies": [],
+  "devDependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "name": "alert.tsx",
+      "content": "import * as React from \"react\";\r\nimport { cn } from \"@/lib/utils\";\r\n\r\nexport interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {\r\n  variant?: \"info\" | \"success\" | \"warning\" | \"error\";\r\n}\r\n\r\nexport const Alert = React.forwardRef<HTMLDivElement, AlertProps>(\r\n  ({ className, variant = \"info\", ...props }, ref) => (\r\n    <div\r\n      ref={ref}\r\n      className={cn(\r\n        \"rounded-md p-4\",\r\n        variant === \"info\" && \"bg-blue-100 text-blue-800\",\r\n        variant === \"success\" && \"bg-green-100 text-green-800\",\r\n        variant === \"warning\" && \"bg-yellow-100 text-yellow-800\",\r\n        variant === \"error\" && \"bg-red-100 text-red-800\",\r\n        className\r\n      )}\r\n      {...props}\r\n    />\r\n  )\r\n);\r\nAlert.displayName = \"Alert\";",
+      "target": "src/components/ui/alert.tsx"
+    }
+  ],
+  "tailwind": {
+    "config": {
+      "theme": {
+        "extend": {}
+      }
+    }
+  },
+  "meta": {
+    "source": "components\\ui\\alert.tsx",
+    "generatedAt": "2025-09-09T19:25:15.787Z",
+    "exports": [
+      "AlertProps",
+      "Alert"
+    ],
+    "hasVariants": false,
+    "hasSizes": false
+  }
+}
