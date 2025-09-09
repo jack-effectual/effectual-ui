@@ -9,7 +9,7 @@ class EffectualUI {
   constructor() {
     this.configPath = path.join(process.cwd(), '.effectual-ui.json')
     this.registryUrl = 'https://raw.githubusercontent.com/jack-effectual/effectual-ui/main/registry'
-    this.authEndpoint = 'https://auth.effectual.com' // We'll build this later
+    this.authEndpoint = 'https://auth.effectual.com' // TODO: We'll build this later
     this.config = this.loadConfig()
   }
 
@@ -188,9 +188,37 @@ export function cn(...inputs: ClassValue[]) {
       return
     }
 
-    console.log('\n📦 Available Effectual UI Components:')
-    console.log('  • button - Customizable button with variants')
-    console.log('\n💡 Install with: npx effectual-ui add <component-name>')
+    const url = `${this.registryUrl}/index.json`;
+    const https = require('https');
+
+    https.get(url, (res) => {
+      let data = '';
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      res.on('end', () => {
+        if (res.statusCode === 200) {
+          try {
+            const index = JSON.parse(data);
+            if (index.components && index.components.length > 0) {
+              console.log('\n📦 Available Effectual UI Components:');
+              index.components.forEach((c) => {
+                console.log(`  • ${c.name} - ${c.description || ''}`);
+              });
+              console.log('\n💡 Install with: npx effectual-ui add <component-name>');
+            } else {
+              console.log('No components found in registry.');
+            }
+          } catch (e) {
+            console.error('❌ Failed to parse registry index:', e.message);
+          }
+        } else {
+          console.error(`❌ Failed to fetch registry index (status ${res.statusCode})`);
+        }
+      });
+    }).on('error', (err) => {
+      console.error('❌ Error fetching registry index:', err.message);
+    });
   }
 
   showHelp() {
