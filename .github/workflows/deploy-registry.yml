@@ -1,4 +1,4 @@
-name: Deploy Component Registry
+name: Build and Deploy Component Registry
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
       id-token: write
     
     steps:
-    - name: Checkout
+    - name: Checkout repository
       uses: actions/checkout@v4
       
     - name: Setup Node.js
@@ -31,14 +31,27 @@ jobs:
     - name: Type check
       run: npm run type-check
       
-    - name: Lint
-      run: npm run lint
+    - name: Lint check
+      run: npm run lint:check
       
-    - name: Build
+    - name: Auto-generate exports
+      run: npm run generate-exports
+      
+    - name: Auto-generate component registry
+      run: npm run generate-registry
+      
+    - name: Build library
       run: npm run build
       
-    - name: Generate Registry
-      run: npm run generate-registry
+    - name: Display registry stats
+      run: |
+        echo "📊 Registry Statistics:"
+        echo "Components found:"
+        ls -la registry/components/ | grep ".json" | wc -l
+        echo "Registry index:"
+        cat registry/index.json | grep -o '"totalComponents":[0-9]*'
+        echo "Generated files:"
+        ls -la registry/
       
     - name: Setup Pages
       if: github.ref == 'refs/heads/main'
@@ -54,3 +67,35 @@ jobs:
       if: github.ref == 'refs/heads/main'
       id: deployment
       uses: actions/deploy-pages@v4
+      
+    - name: Comment on PR with registry info
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          try {
+            const registryIndex = JSON.parse(fs.readFileSync('registry/index.json', 'utf8'));
+            const comment = `## 📦 Component Registry Updated
+            
+            **Components Available: ${registryIndex.stats.totalComponents}**
+            - UI Components: ${registryIndex.stats.uiComponents}
+            - Custom Components: ${registryIndex.stats.customComponents}
+            - With Variants: ${registryIndex.stats.componentsWithVariants}
+            
+            **Components:**
+            ${registryIndex.components.map(c => `- \`${c.name}\`: ${c.description}`).join('\n')}
+            
+            **Registry URL:** ${registryIndex.registryUrl}
+            **Generated:** ${new Date(registryIndex.generatedAt).toLocaleString()}
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          } catch (error) {
+            console.log('Could not create PR comment:', error.message);
+          }

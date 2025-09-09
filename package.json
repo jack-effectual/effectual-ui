@@ -8,9 +8,9 @@
   "bin": {
     "effectual-ui": "./bin/cli.js"
   },
-  "scripts": {
+ "scripts": {
     "build": "npm run generate-exports && tsup",
-    "dev": "tsup --watch", 
+    "dev": "tsup --watch",
     "clean": "rimraf dist",
     "type-check": "tsc --noEmit",
     "lint": "eslint src --ext .ts,.tsx --fix",
@@ -20,6 +20,7 @@
     "test": "echo \"Tests coming soon\"",
     "generate-registry": "node scripts/generate-registry.js",
     "generate-exports": "node scripts/generate-exports.js",
+    "generate-all": "npm run generate-exports && npm run generate-registry",
     "prebuild": "npm run generate-exports"
   },
   "files": [
